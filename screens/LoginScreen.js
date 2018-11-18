@@ -14,15 +14,13 @@ import { WebBrowser } from 'expo';
 
 import { MonoText } from '../components/StyledText';
 
-export default class RegistrationScreen extends React.Component {
+export default class LoginScreen extends React.Component {
 
   constructor(){
     super();
     this.state={
       'username':'',
-      'email':'',
       'password':'',
-      'passwordConfirmation':''
     }
   }
   static navigationOptions = {
@@ -34,7 +32,7 @@ export default class RegistrationScreen extends React.Component {
       <View style={styles.container}>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.welcomeContainer}>
-      <Text style={styles.getStartedText}>Sign Up</Text>
+      <Text style={styles.getStartedText}>Login</Text>
 
       </View>
 
@@ -47,13 +45,7 @@ export default class RegistrationScreen extends React.Component {
        underlineColorAndroid='transparent'
        style={styles.formTextInput}
        />
-      <TextInput
-      placeholder="Email"
-      onChangeText={ TextInputValue =>
-       this.setState({email : TextInputValue }) }
-       underlineColorAndroid='transparent'
-       style={styles.formTextInput}
-       />
+
        <TextInput
        placeholder="Password"
        onChangeText={ TextInputValue =>
@@ -63,18 +55,10 @@ export default class RegistrationScreen extends React.Component {
          style={styles.formTextInput}
 
          />
-                <TextInput
-       placeholder="Confirm Password"
-       onChangeText={ TextInputValue =>
-         this.setState({passwordConfirmation: TextInputValue }) }
-         underlineColorAndroid='transparent'
-         secureTextEntry={true}
-         style={styles.formTextInput}
 
-         />
         <TouchableOpacity>
 
-        <Button title="submit" onPress={this._handleSubmit} ><Text>Register</Text></Button>
+        <Button title="submit" onPress={this._handleSubmit} ><Text>Login</Text></Button>
 
          </TouchableOpacity>
 
@@ -101,7 +85,7 @@ export default class RegistrationScreen extends React.Component {
          </Text>
         );
     } else {
-      return (
+      return ( 
         <Text style={styles.developmentModeText}>
         You are not in development mode, your app will run at full speed.
         </Text> 
@@ -109,7 +93,7 @@ export default class RegistrationScreen extends React.Component {
     }
   }*/
   _handleSubmit=  () => {
-  fetch("http://brightslabsdemo.atwebpages.com/php/signup.php", {
+  fetch("http://brightslabsdemo.atwebpages.com/php/login.php", {
     method: "POST",
     mode: "same-origin",
     credentials: "same-origin",
