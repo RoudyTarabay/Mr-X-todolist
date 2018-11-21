@@ -6,10 +6,9 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  AsyncStorage,
-  NavigationActions,
   TouchableOpacity,
   View,
+  AsyncStorage,
   Button
 } from 'react-native';
 import { WebBrowser } from 'expo';
@@ -17,89 +16,80 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { MonoText } from '../components/StyledText';
 
-export default class LoginScreen extends React.Component {
-
+export default class SingleListScreen extends React.Component {
+ 
   constructor(props){
     super(props);
-    this.state={
-      'email':'',
-      'password':'',
-      response:{}
-    } 
+        this.id=0;
+
+    this.state={ 
+      listTitles:[]
+    };
+//    this._bootstrapAsync();
+  } 
+
+  // Fetch the token from storage then navigate to our appropriate place
+  _bootstrapAsync = async () => {
+ //  const email=await AsyncStorage.getItem('email');
+
+   this.state.email=email;
+
+    // This will switch to the App screen or Auth screen and this loading
+    // screen will be unmounted and thrown away.
+  };
+
+  fetchList= ()=>{
+
+    fetch("http://brightslabsdemo.atwebpages.com/php/getLists.php", {
+      method: "POST",
+      mode: "same-origin",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+
+        "payload": {'email':this.state.email}
+      })
+    })
+    .then((response) =>response.json()) 
+      .then((responseJson) => {
+      console.log('aaaaaa')
+      console.log(responseJson);
+      console.log('bbbbb');  
+      console.log(JSON.parse(responseJson.replace(/'/g,'"') ))
+      this.setState({'listTitles':JSON.parse(responseJson.replace(/'/g,'"') ).message});
+      
+      console.log(this.state);
+
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
   static navigationOptions = {
     header: null,
   };
 
-  render() {  
-    let self=this;
-    /*let dispatchObj= {routeName: 'NewNote',
-      params: self.state.email,
-      action: NavigationActions.navigate({ routeName: 'App', params: {name: self.state.email}})
-    } */
-    /*console.log( routeName: 'NewNote',
-      params: self.state.email,
-      action: NavigationActions.navigate({ routeName: 'ProfileScreen', params: {name: self.state.email}}));
-      console.log(self.state.email)*/
-      console.log(self.state.email)
-
-      return (
-        <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.mainTitleContainer}>
-        <Image style={styles.logo} source={require('../assets/images/toDoListIcon.png')}   resizeMode="contain" />
-
-        <Text style={styles.mainTitle}>Mr X 's to do list</Text>
-
-        </View>
-
-        <View style={styles.formContainer}>
-      {/*this._maybeRenderDevelopmentModeWarning()*/}
-      <TextInput
-      placeholder="Email"
-      onChangeText={ TextInputValue =>
-       this.setState({email : TextInputValue }) }
-       underlineColorAndroid='transparent'
-       style={styles.formTextInput}
-       />
-
-       <TextInput
-       placeholder="Password"
-       onChangeText={ TextInputValue =>
-         this.setState({password: TextInputValue }) }
-         underlineColorAndroid='transparent'
-         secureTextEntry={true}
-         style={styles.formTextInput}
-
-         />
-
-         <TouchableOpacity underlayColor='#fff' style={styles.submitButton } onPress={this._handleSubmit}>
-         <Text style={styles.centerText}>Login</Text>
-         </TouchableOpacity>
-         <View style={styles.backendMessageContainer}> 
-         <Text style={styles.icons}>
-         <Ionicons  name={
-          this.state["response"].status==null?'' :this.state["response"].status=="success" ? 'md-checkmark' : 'md-warning'}/> 
-          </Text>
-          <Text style={styles.backendMessage}>
-
-          {this.state["response"].message} 
-          </Text>
-          </View>
-          </View>
-          </ScrollView>
+  render() {
+ 
+    return (
+      <View style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+<Text>hiiiiiiiii</Text>
+      </ScrollView>
 
 
-          </View>
-          );
-    }
+      </View>
+      );
+  }
 
   /*_maybeRenderDevelopmentModeWarning() {
     if (__DEV__) {
       const learnMoreButton = (
         <Text onPress={this._handleLearnMorePress} style={styles.helpLinkText}>
         Learn more
-        </Text>
+        </Text> 
         );
 
       return (just changed my password hoping it would
@@ -111,14 +101,13 @@ export default class LoginScreen extends React.Component {
     } else {
       return ( 
         <Text style={styles.developmentModeText}>
-        You are not in development mode, your app will run at full speed. 
+        You are not in development mode, your app will run at full speed.
         </Text> 
         );
     }
   }*/
-  _handleSubmit=   () => {
-
-    fetch("http://brightslabsdemo.atwebpages.com/php/login.php", { 
+  _handleSubmit=  () => {
+    fetch("http://brightslabsdemo.atwebpages.com/php/login.php", {
       method: "POST",
       mode: "same-origin",
       credentials: "same-origin",
@@ -131,18 +120,12 @@ export default class LoginScreen extends React.Component {
       })
     })
     .then((response) => response.json())    
-    .then(async(responseJson) => {
+    .then((responseJson) => {
       this.setState({'response':JSON.parse(responseJson.replace(/'/g,'"')) });
-     // his.props.navigation.dispatch ('navigateAction');
-   /*  this.props.navigation.setParams({
-      bla:'aaa',
-    })*/
-    if(JSON.parse(responseJson.replace(/'/g,'"')).status=="success"){
-        await AsyncStorage.setItem('email', this.state.email);
-         this.props.navigation.navigate("App");
-      }
+      this.props.navigation.navigate('App');
 
-  })
+
+    })
     .catch((error) => {
       console.error(error);
     });
@@ -197,9 +180,20 @@ getStartedText: {
   lineHeight: 24,
   textAlign: 'center',
 },
-});*/
+});*/ 
 
 const styles = StyleSheet.create({
+  listElement:{
+    flex:1,
+    height:40,
+    justifyContent: 'center',
+      paddingLeft:20
+
+  },
+  listText:{
+    fontSize:20,
+    color:'white'
+  },
   formTextInput:{
    textAlign: 'center',
    width: '100%',

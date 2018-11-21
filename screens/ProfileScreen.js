@@ -6,8 +6,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  AsyncStorage,
-  NavigationActions,
   TouchableOpacity,
   View,
   Button
@@ -17,43 +15,48 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { MonoText } from '../components/StyledText';
 
-export default class LoginScreen extends React.Component {
+export default class ProfileScreen extends React.Component {
 
-  constructor(props){
+  constructor(props){ 
     super(props);
-    this.state={
+     this.state={
       'email':'',
       'password':'',
       response:{}
-    } 
+    }
+   this._bootstrapAsync();
   }
+
+  // Fetch the token from storage then navigate to our appropriate place
+  _bootstrapAsync = async () => {
+     const email=await AsyncStorage.getItem('email');
+     console.log(email);
+
+     this.state.email=email;
+
+    // This will switch to the App screen or Auth screen and this loading
+    // screen will be unmounted and thrown away.
+  };
   static navigationOptions = {
-    header: null,
+    header: null,  
   };
 
-  render() {  
-    let self=this;
-    /*let dispatchObj= {routeName: 'NewNote',
-      params: self.state.email,
-      action: NavigationActions.navigate({ routeName: 'App', params: {name: self.state.email}})
-    } */
-    /*console.log( routeName: 'NewNote',
-      params: self.state.email,
-      action: NavigationActions.navigate({ routeName: 'ProfileScreen', params: {name: self.state.email}}));
-      console.log(self.state.email)*/
-      console.log(self.state.email)
+  render() {
 
-      return (
-        <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.mainTitleContainer}>
-        <Image style={styles.logo} source={require('../assets/images/toDoListIcon.png')}   resizeMode="contain" />
 
-        <Text style={styles.mainTitle}>Mr X 's to do list</Text>
 
-        </View>
+    return (
 
-        <View style={styles.formContainer}>
+      <View style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.mainTitleContainer}>
+      <Image style={styles.logo} source={require('../assets/images/toDoListIcon.png')}   resizeMode="contain" />
+
+      <Text style={styles.mainTitle}>Mr X 's to do list</Text>
+
+      </View>
+
+      <View style={styles.formContainer}>
       {/*this._maybeRenderDevelopmentModeWarning()*/}
       <TextInput
       placeholder="Email"
@@ -73,26 +76,26 @@ export default class LoginScreen extends React.Component {
 
          />
 
-         <TouchableOpacity underlayColor='#fff' style={styles.submitButton } onPress={this._handleSubmit}>
+     <TouchableOpacity underlayColor='#fff' style={styles.submitButton } onPress={this._handleSubmit}>
          <Text style={styles.centerText}>Login</Text>
          </TouchableOpacity>
          <View style={styles.backendMessageContainer}> 
          <Text style={styles.icons}>
          <Ionicons  name={
           this.state["response"].status==null?'' :this.state["response"].status=="success" ? 'md-checkmark' : 'md-warning'}/> 
-          </Text>
-          <Text style={styles.backendMessage}>
+         </Text>
+         <Text style={styles.backendMessage}>
 
-          {this.state["response"].message} 
-          </Text>
-          </View>
-          </View>
-          </ScrollView>
+        {this.state["response"].message} 
+        </Text>
+        </View>
+         </View>
+         </ScrollView>
 
 
-          </View>
-          );
-    }
+         </View>
+         );
+  }
 
   /*_maybeRenderDevelopmentModeWarning() {
     if (__DEV__) {
@@ -111,42 +114,34 @@ export default class LoginScreen extends React.Component {
     } else {
       return ( 
         <Text style={styles.developmentModeText}>
-        You are not in development mode, your app will run at full speed. 
+        You are not in development mode, your app will run at full speed.
         </Text> 
         );
     }
   }*/
-  _handleSubmit=   () => {
+  _handleSubmit=  () => {
+  fetch("http://brightslabsdemo.atwebpages.com/php/login.php", {
+    method: "POST",
+    mode: "same-origin",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
 
-    fetch("http://brightslabsdemo.atwebpages.com/php/login.php", { 
-      method: "POST",
-      mode: "same-origin",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-
-        "payload": this.state
-      })
+      "payload": this.state
     })
-    .then((response) => response.json())    
-    .then(async(responseJson) => {
-      this.setState({'response':JSON.parse(responseJson.replace(/'/g,'"')) });
-     // his.props.navigation.dispatch ('navigateAction');
-   /*  this.props.navigation.setParams({
-      bla:'aaa',
-    })*/
-    if(JSON.parse(responseJson.replace(/'/g,'"')).status=="success"){
-        await AsyncStorage.setItem('email', this.state.email);
-         this.props.navigation.navigate("App");
-      }
-
   })
+    .then((response) => response.json())    
+    .then((responseJson) => {
+      this.setState({'response':JSON.parse(responseJson.replace(/'/g,'"')) });
+
+
+    })
     .catch((error) => {
       console.error(error);
     });
-  }
+}
 
   _handleLearnMorePress = () => { 
     WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/guides/development-mode');
@@ -264,13 +259,13 @@ centerText:{
   fontSize:20,
   textAlign:'center',
   color:'white',
-  alignItems:'center',
-  paddingBottom : 20
+    alignItems:'center',
+      paddingBottom : 20
 
 },
 backendMessage:{
-  color: "#0E8044",
-  fontSize:16
+    color: "#0E8044",
+    fontSize:16
 
 },
 backendMessageContainer:{
@@ -280,11 +275,11 @@ backendMessageContainer:{
   alignItems: 'center',
   justifyContent: 'flex-start'
 },
-
+ 
 icons:{
-  fontSize:16,
-  marginRight:5,
-  color: "#0E8044",
+    fontSize:16,
+    marginRight:5,
+    color: "#0E8044",
 }
 });
 

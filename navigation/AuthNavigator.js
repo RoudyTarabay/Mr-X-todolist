@@ -15,6 +15,11 @@ const RegistrationStack = createStackNavigator({
 });
 
 RegistrationStack.navigationOptions = {
+
+
+
+
+  
   tabBarLabel: 'Register',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
@@ -22,7 +27,7 @@ RegistrationStack.navigationOptions = {
       name={
         Platform.OS === 'ios'
           ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
+          : 'md-key'
       }
     />
   ),
@@ -37,14 +42,15 @@ LoginStack.navigationOptions = {
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'}
+      name={Platform.OS === 'ios' ? 'ios-link' : 'md-log-in'}
     />
   ),
 };
 
 
-
-export default createBottomTabNavigator({
+const bottomNav1=createBottomTabNavigator({
   RegistrationStack,
   LoginStack,
 });
+
+export default bottomNav1;
