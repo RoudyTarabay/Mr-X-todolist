@@ -85,23 +85,23 @@ render() {
     ];
 
     return(
-      <TouchableOpacity key={this.id} onPress={()=>{this._displayList(x,this.state.email)}}>
-      <View style={listElement} >
+      <View style={listElement} key={this.id}>
+      <TouchableOpacity onPress={()=>{this._displayList(x,this.state.email)}}>
+    
       <Text style={styles.listText}>{x}</Text>
 
-      </View>
       </TouchableOpacity>
+      <TouchableOpacity onPress={()=>{this._deleteList(x,this.state.email)}}>
+        <Ionicons name="md-trash" style={styles.deleteIcon}/>
+      </TouchableOpacity>
+      </View>
       ); 
   });
   return ( 
-    <View style={styles.container}>
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
     {lists}
 
     </ScrollView>
-
-
-    </View>
     );
 }
 _displayList=(title,email)=>{
@@ -109,6 +109,41 @@ _displayList=(title,email)=>{
  this._storeListName(title,email);
  this.props.navigation.navigate("SingleList");
 
+
+}
+
+
+_deleteList=(title,email)=>{
+  console.log('hiii');
+  fetch("http://brightslabsdemo.atwebpages.com/php/deleteList.php", {
+    method: "POST",
+    mode: "same-origin",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+
+      "payload": {'email':email,'title':title}
+    })
+  })
+  .then((response) =>response.json()) 
+  .then((responseJson) => {
+    console.log(responseJson)
+    responseJson=JSON.parse(responseJson.replace(/'/g,'"'));
+    if (responseJson.status=="success"){
+      let listTitles=this.state.listTitles;
+      let filteredItems = listTitles.filter(item => item !== title);
+      console.log('filtered')
+      console.log(filteredItems);
+      console.log('filtered')
+      console.log(this.state)
+      this.setState({listTitles:filteredItems});
+    }
+  })
+  .catch((error) => {
+    console.error(error);
+  });
 
 }
 _storeListName= async (title,email)=>{
@@ -164,10 +199,21 @@ getStartedText: {
 const styles = StyleSheet.create({
   listElement:{
     flex:1,
-    height:40,
-    justifyContent: 'center',
-    paddingLeft:20
+    flexDirection:'row',
+    flex: 1,
+  flexDirection: 'row',
+  alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft:20,
+        paddingRight:20,
 
+    height:40
+
+  },
+  deleteIcon:{
+    alignSelf:'flex-end',
+    fontSize:20,
+    color:"#463f42"
   },
   listText:{
     fontSize:20,
@@ -186,8 +232,6 @@ const styles = StyleSheet.create({
 
  },
  container: {
-  flex: 1,
-  backgroundColor: '#fff',
 },
 logo:{
   flex:1, 
@@ -196,7 +240,8 @@ logo:{
   width: undefined
 },
 contentContainer: {
-  paddingTop: 30, 
+  flexGrow: 1
+
 },
 mainTitleContainer: {
   flex:1,
