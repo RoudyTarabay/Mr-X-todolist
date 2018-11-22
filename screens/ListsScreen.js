@@ -24,7 +24,8 @@ export default class ListsScreen extends React.Component {
 
     this.state={
       listTitles:[],
-      email:''
+      email:'',
+      'newTitle':''
     };
     this._bootstrapAsync();
   } 
@@ -35,11 +36,11 @@ export default class ListsScreen extends React.Component {
    console.log(email);
 
    this.state.email=email;
-   this.fetchList();
+   this.fetchList(); 
 
  };
 
- fetchList= ()=>{
+ fetchList= ()=>{ 
 
   fetch("http://brightslabsdemo.atwebpages.com/php/getLists.php", {
     method: "POST",
@@ -52,10 +53,9 @@ export default class ListsScreen extends React.Component {
 
       "payload": {'email':this.state.email}
     })
-  })
-  .then((response) =>response.json()) 
+  })  
+  .then((response) => response.json() ) 
   .then((responseJson) => {
-    console.log('aaaaaa')
     console.log(responseJson);
     console.log('bbbbb');  
     console.log(JSON.parse(responseJson.replace(/'/g,'"') ))
@@ -86,23 +86,73 @@ render() {
 
     return(
       <View style={listElement} key={this.id}>
-      <TouchableOpacity onPress={()=>{this._displayList(x,this.state.email)}}>
-    
-      <Text style={styles.listText}>{x}</Text>
+      <TouchableOpacity onPress={()=>{this._displayList(x.id,this.state.email)}}>
+
+      <Text style={styles.listText}>{x.title}</Text>
 
       </TouchableOpacity>
-      <TouchableOpacity onPress={()=>{this._deleteList(x,this.state.email)}}>
-        <Ionicons name="md-trash" style={styles.deleteIcon}/>
+      <TouchableOpacity onPress={()=>{this._deleteList(x.id,this.state.email)}}>
+      <Ionicons name="md-trash" style={styles.deleteIcon}/>
       </TouchableOpacity>
       </View>
       ); 
   });
   return ( 
+    <View>
+    <View style={styles.header}>
+    
+    </View>
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <View style={styles.addElementContainer}>
+          <TextInput
+      placeholder="List Title"
+       underlineColorAndroid='transparent'
+       style={styles.addList}
+        onChangeText={ TextInputValue =>
+       this.setState({newTitle : TextInputValue }) }
+       />
+    <TouchableOpacity onPress={()=>{this._addList(this.state.email)}}>
+      <Ionicons name="md-add" style={styles.plus}/>
+      </TouchableOpacity>
+    </View>
+
     {lists}
 
     </ScrollView>
+    </View>
+
     );
+}
+
+_addList=(email)=>{
+  fetch("http://brightslabsdemo.atwebpages.com/php/addList.php", {
+    method: "POST",
+    mode: "same-origin",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+
+      "payload": {'email':email, 'title':this.state.newTitle}
+    })
+  })
+
+  .then((response) =>response.json()) 
+  .then((responseJson) => {
+
+    console.log(responseJson)
+    responseJson=JSON.parse(responseJson.replace(/'/g,'"'));
+    if (responseJson.status=="success"){
+      let id=responseJson.message;
+      let listTitles=this.state.listTitles;
+      listTitles.push({id:id, title:this.state.newTitle})
+      this.setState({listTitles:listTitles});
+    }
+  })
+  .catch((error) => {
+    console.error(error);
+  });
 }
 _displayList=(title,email)=>{
 
@@ -113,8 +163,7 @@ _displayList=(title,email)=>{
 }
 
 
-_deleteList=(title,email)=>{
-  console.log('hiii');
+_deleteList=(id,email)=>{
   fetch("http://brightslabsdemo.atwebpages.com/php/deleteList.php", {
     method: "POST",
     mode: "same-origin",
@@ -124,7 +173,7 @@ _deleteList=(title,email)=>{
     },
     body: JSON.stringify({
 
-      "payload": {'email':email,'title':title}
+      "payload": {'email':email,'id':id}
     })
   })
   .then((response) =>response.json()) 
@@ -133,7 +182,7 @@ _deleteList=(title,email)=>{
     responseJson=JSON.parse(responseJson.replace(/'/g,'"'));
     if (responseJson.status=="success"){
       let listTitles=this.state.listTitles;
-      let filteredItems = listTitles.filter(item => item !== title);
+      let filteredItems = listTitles.filter(item => item.id !== id);
       console.log('filtered')
       console.log(filteredItems);
       console.log('filtered')
@@ -197,15 +246,37 @@ getStartedText: {
 });*/ 
 
 const styles = StyleSheet.create({
-  listElement:{
-    flex:1,
-    flexDirection:'row',
+  addElementContainer:{
     flex: 1,
-  flexDirection: 'row',
-  alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+ 
+    height:40
+  },
+  header:{
+    height:100,
+    backgroundColor:"#463f42",
+    alignItems:'flex-end',  
+    justifyContent:'center',
+    paddingRight:20,
+    paddingLeft:20
+
+  },
+  plus:{
+    fontSize:40,
+    flex:2,
+    paddingLeft:5,
+    paddingRight:5
+  },
+
+  listElement:{
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
     paddingLeft:20,
-        paddingRight:20,
+    paddingRight:20,
 
     height:40
 
@@ -219,28 +290,24 @@ const styles = StyleSheet.create({
     fontSize:20,
     color:'white'
   },
-  formTextInput:{
+  addList:{
    textAlign: 'center',
-   width: '100%',
-   marginBottom: 7,
    height: 40,
    borderColor:'grey',
    fontSize: 20, 
    borderWidth: 0.5,
-   borderRadius:5   
-
+   flex:8
 
  },
  container: {
-},
-logo:{
+ },
+ logo:{
   flex:1, 
   alignSelf:'stretch',
   height: undefined,
   width: undefined
 },
 contentContainer: {
-  flexGrow: 1
 
 },
 mainTitleContainer: {
