@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  AsyncStorage, 
   Button
 } from 'react-native';
 import { WebBrowser } from 'expo';

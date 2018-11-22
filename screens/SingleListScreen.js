@@ -10,7 +10,7 @@ import {
   View,
   AsyncStorage,
   Button
-} from 'react-native';
+} from 'react-native';    
 import { WebBrowser } from 'expo';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -23,24 +23,27 @@ export default class SingleListScreen extends React.Component {
         this.id=0;
 
     this.state={ 
-      listTitles:[]
+      email:'',
+      title:'',
+      listContent:''
     };
-//    this._bootstrapAsync();
+   this._bootstrapAsync();
   } 
 
   // Fetch the token from storage then navigate to our appropriate place
   _bootstrapAsync = async () => {
- //  const email=await AsyncStorage.getItem('email');
-
-   this.state.email=email;
-
+  const email=await AsyncStorage.getItem('email');
+  const listTitle=await AsyncStorage.getItem('listTitle');
+  this.state.email=email;
+  this.state.title=listTitle;
+  this.fetchListContent();
     // This will switch to the App screen or Auth screen and this loading
     // screen will be unmounted and thrown away.
   };
 
-  fetchList= ()=>{
+  fetchListContent= ()=>{
 
-    fetch("http://brightslabsdemo.atwebpages.com/php/getLists.php", {
+    fetch("http://brightslabsdemo.atwebpages.com/php/fetchListContent.php", {
       method: "POST",
       mode: "same-origin",
       credentials: "same-origin",
@@ -48,20 +51,13 @@ export default class SingleListScreen extends React.Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-
-        "payload": {'email':this.state.email}
+        "payload": {'email':this.state.email,'title':this.state.title}
       })
     })
     .then((response) =>response.json()) 
       .then((responseJson) => {
-      console.log('aaaaaa')
-      console.log(responseJson);
-      console.log('bbbbb');  
-      console.log(JSON.parse(responseJson.replace(/'/g,'"') ))
-      this.setState({'listTitles':JSON.parse(responseJson.replace(/'/g,'"') ).message});
-      
-      console.log(this.state);
-
+        console.log(responseJson)
+      this.setState({'listContent':JSON.parse(responseJson.replace(/'/g,'"') ).message});
     })
     .catch((error) => {
       console.error(error);
@@ -76,19 +72,19 @@ export default class SingleListScreen extends React.Component {
     return (
       <View style={styles.container}>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-<Text>hiiiiiiiii</Text>
+        <Text>{this.state.listContent}</Text>
       </ScrollView>
-
+   
 
       </View>
       );
   }
 
-  /*_maybeRenderDevelopmentModeWarning() {
+  /*_maybeRenderDevelopmentModeWarning() { 
     if (__DEV__) {
       const learnMoreButton = (
         <Text onPress={this._handleLearnMorePress} style={styles.helpLinkText}>
-        Learn more
+        Learn more 
         </Text> 
         );
 

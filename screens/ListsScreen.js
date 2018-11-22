@@ -20,103 +20,103 @@ export default class ListsScreen extends React.Component {
 
   constructor(props){
     super(props );
-        this.id=0;
+    this.id=0;
 
     this.state={
-      listTitles:[]
+      listTitles:[],
+      email:''
     };
-    console.log(this.props.navigation.getParam("email"));
     this._bootstrapAsync();
   } 
 
-  // Fetch the token from storage then navigate to our appropriate place
   _bootstrapAsync = async () => {
    const email=await AsyncStorage.getItem('email');
+
    console.log(email);
 
    this.state.email=email;
    this.fetchList();
 
-    // This will switch to the App screen or Auth screen and this loading
-    // screen will be unmounted and thrown away.
-  };
+ };
 
-  fetchList= ()=>{
+ fetchList= ()=>{
 
-    fetch("http://brightslabsdemo.atwebpages.com/php/getLists.php", {
-      method: "POST",
-      mode: "same-origin",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
+  fetch("http://brightslabsdemo.atwebpages.com/php/getLists.php", {
+    method: "POST",
+    mode: "same-origin",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
 
-        "payload": {'email':this.state.email}
-      })
+      "payload": {'email':this.state.email}
     })
-    .then((response) =>response.json()) 
-      .then((responseJson) => {
-      console.log('aaaaaa')
-      console.log(responseJson);
-      console.log('bbbbb');  
-      console.log(JSON.parse(responseJson.replace(/'/g,'"') ))
-      this.setState({'listTitles':JSON.parse(responseJson.replace(/'/g,'"') ).message});
-      
-      console.log(this.state);
+  })
+  .then((response) =>response.json()) 
+  .then((responseJson) => {
+    console.log('aaaaaa')
+    console.log(responseJson);
+    console.log('bbbbb');  
+    console.log(JSON.parse(responseJson.replace(/'/g,'"') ))
+    this.setState({'listTitles':JSON.parse(responseJson.replace(/'/g,'"') ).message});
 
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  }
-  static navigationOptions = {
-    header: null,
-  };
+    console.log(this.state);
 
-  render() {
-let colors = ['#9b9922', '#d5cd87'];
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+}
+static navigationOptions = {
+  header: null,
+};
+
+render() {
+  let colors = ['#9b9922', '#d5cd87'];
 
 
-   
-      let lists=this.state.listTitles.map((x)=>{
-        this.id=this.id+1;
- let listElement = [
-         styles.listElement, 
-         {'backgroundColor': colors[this.id % colors.length]}
-       ];
 
-        return(
-          <TouchableOpacity key={this.id} onPress={this._displayList({x})}>
-          <View style={listElement} >
-          <Text style={styles.listText}>{x}</Text>
+  let lists=this.state.listTitles.map((x)=>{
+    this.id=this.id+1;
+    let listElement = [
+    styles.listElement, 
+    {'backgroundColor': colors[this.id % colors.length]}
+    ];
 
-          </View>
-          </TouchableOpacity>
-          ); 
-        console.log(this.id);
-      });
-    return ( 
-      <View style={styles.container}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      {lists}
-
-      </ScrollView>
-
+    return(
+      <TouchableOpacity key={this.id} onPress={()=>{this._displayList(x,this.state.email)}}>
+      <View style={listElement} >
+      <Text style={styles.listText}>{x}</Text>
 
       </View>
-      );
-  }
-  _displayList=(title)=>{
+      </TouchableOpacity>
+      ); 
+  });
+  return ( 
+    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    {lists}
 
-     this._storeListName(title)
+    </ScrollView>
 
-  }
-_storeListName= async (title)=>{
-        await AsyncStorage.setItem('listTitle', title);
-        this.props.navigation.navigate("SingleList");
 
- }
+    </View>
+    );
+}
+_displayList=(title,email)=>{
+
+ this._storeListName(title,email);
+ this.props.navigation.navigate("SingleList");
+
+
+}
+_storeListName= async (title,email)=>{
+  await AsyncStorage.setItem('listTitle', title);
+  await AsyncStorage.setItem('email', email);
+
+
+}
 
 
 } 
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     flex:1,
     height:40,
     justifyContent: 'center',
-      paddingLeft:20
+    paddingLeft:20
 
   },
   listText:{
